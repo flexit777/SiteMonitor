@@ -1,36 +1,25 @@
 name: Ticket Monitor
+
 on:
   schedule:
-    - cron: '*/5 * * * *' # Checks every 5 minutes
-  workflow_dispatch:      # Allows manual trigger
+    - cron: '*/5 * * * *'  # Runs every 5 minutes automatically
+  workflow_dispatch:      # Allows you to also run it manually
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-
+        uses: actions/checkout@v2
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: '3.9'
-
       - name: Install dependencies
-        run: pip install requests pytz beautifulsoup4
-
+        run: pip install requests pytz
       - name: Run Script
         env:
           TG_TOKEN: ${{ secrets.TG_TOKEN }}
           TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          SCRAPER_API_KEY: ${{ secrets.SCRAPER_API_KEY }}
         run: python monitor.py
-
-      - name: Update UI
-        run: |
-          git config --global user.name "TicketBot"
-          git config --global user.email "bot@github.com"
-          git add last_check.txt
-          git commit -m "Update last check time [skip ci]" || echo "No changes"
-          git push
